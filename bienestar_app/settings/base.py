@@ -28,7 +28,7 @@ BASE_APPS = [
 ]
 
 LOCAL_APPS = [
-
+    'apps.base',
 ]
 
 THIRD_APPS = [
