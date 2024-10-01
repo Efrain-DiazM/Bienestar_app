@@ -32,11 +32,26 @@ class User(AbstractBaseUser, PermissionsMixin):
         ('Estudiante', 'Estudiante'),
     )
 
+    TYPODOC =(
+        ('CC', 'Cédula de Ciudadanía'),
+        ('CE', 'Cédula de Extranjería'),
+        ('TI', 'Tarjeta de Identidad'),
+    )
+
+    GENDERS = (
+        ('M', 'Masculino'),
+        ('F', 'Femenino'),
+        ('O', 'Otro'),
+    )
+
     username = models.CharField(max_length=255, unique=True)
     email = models.EmailField('Correo Electrónico', max_length=255, unique=True)
     name = models.CharField('Nombres', max_length=255, blank=True, null=True)
     last_name = models.CharField('Apellidos', max_length=255, blank=True, null=True)
-    celular = models.CharField('Celular', max_length=15, blank=True, null=True)
+    type_document = models.CharField('Tipo de documento', max_length=2, choices=TYPODOC, default='CC')
+    identification = models.CharField('Documento', max_length=20, unique=True)
+    phone_number = models.CharField('Celular', max_length=15, blank=True, null=True)
+    gender = models.CharField('Género', max_length=1, choices=GENDERS)
     image = models.ImageField('Imagen de perfil', upload_to='perfil/', max_length=255, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -56,8 +71,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Estudiante(User):
-    semestre = models.IntegerField('Semestre')
-    horas_acumuladas = models.DecimalField('Horas Acumuladas', max_digits=5, decimal_places=2, default=0)
+    semester = models.IntegerField('Semestre')
+    accumulated_hours = models.DecimalField('Horas Acumuladas', max_digits=5, decimal_places=2, default=0)
 
     class Meta:
         verbose_name = 'Estudiante'
@@ -65,7 +80,7 @@ class Estudiante(User):
 
 
 class UsuarioBienestar(User):
-    dimension_academica = models.CharField('Dimensión Académica', max_length=255)
+    dimension = models.CharField('Dimensión Académica', max_length=255)
 
     class Meta:
         verbose_name = 'Usuario Bienestar'

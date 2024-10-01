@@ -4,7 +4,7 @@ from apps.users.models import User, Estudiante, UsuarioBienestar
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'name', 'last_name', 'celular', 'password', 'role', 'image', 'is_active', 'is_staff']
+        fields = ['id', 'username', 'email', 'name', 'last_name', 'phone_number', 'password', 'role', 'image', 'is_active', 'is_staff']
 
     # def to_representation(self, instance):
     #     if instance.role == 'Estudiante':
@@ -54,9 +54,9 @@ class UserSerializer(serializers.ModelSerializer):
 class EstudianteSerializer(UserSerializer):
     class Meta(UserSerializer.Meta):
         model = Estudiante
-        fields = UserSerializer.Meta.fields + ['semestre', 'horas_acumuladas']
+        fields = UserSerializer.Meta.fields + ['semester', 'accumulated_hours']
 
 class UsuarioBienestarSerializer(UserSerializer):
     class Meta(UserSerializer.Meta):
         model = UsuarioBienestar
-        fields = UserSerializer.Meta.fields + ['dimension_academica']
+        fields = UserSerializer.Meta.fields + ['dimension']
