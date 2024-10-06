@@ -21,5 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # Include the urls from the users app
     path('users/', include('apps.users.api.urls')),
-    path('activities/', include('apps.activities.api.urls'))
+    path('activities/', include('apps.activities.api.routers'))
 ]
