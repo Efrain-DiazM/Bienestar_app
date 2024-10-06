@@ -35,6 +35,7 @@ LOCAL_APPS = [
 
 THIRD_APPS = [
     'rest_framework',
+    'rest_framework.authtoken',
     'simple_history',
     'drf_yasg',
 ]
@@ -44,6 +45,8 @@ INSTALLED_APPS = BASE_APPS + LOCAL_APPS + THIRD_APPS
 SWAGGER_SETTINGS = {
     'DOC_EXPANSION': 'none'
 }
+
+TOKEN_EXPIRED_AFTER_SECONDS = 900
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

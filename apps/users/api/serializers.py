@@ -1,19 +1,15 @@
 from rest_framework import serializers
 from apps.users.models import User, Estudiante, UsuarioBienestar
 
+class UserTokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'name', 'last_name')
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'name', 'last_name', 'phone_number', 'password', 'role', 'image', 'is_active', 'is_staff']
-
-    # def to_representation(self, instance):
-    #     if instance.role == 'Estudiante':
-    #         return EstudianteSerializer(instance).data
-    #     elif instance.role == 'Usuario_Bienestar':
-    #         return UsuarioBienestarSerializer(instance).data
-    #     else:
-    #         return super().to_representation(instance)
-    # calidar que el correo sea @campusucc.edu.co o @ucc.edu.co
 
     def validate_email(self, value):
     # Validacion personalizada
@@ -26,8 +22,6 @@ class UserSerializer(serializers.ModelSerializer):
         # if self.validate_name(self.context['name']) in value:
         #     raise serializers.ValidationError("Error, el nombre no puede estar en el email")
         return value
-    
-    
 
     def create(self, validated_data):
         role = validated_data.get('role')

@@ -22,6 +22,8 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
+from apps.users.views import Login, Logout, UserToken
+
 schema_view = get_schema_view(
    openapi.Info(
       title="Documentacion de API",
@@ -42,6 +44,9 @@ urlpatterns = [
 
     path('admin/', admin.site.urls),
     # Include the urls from the users app
+    path('', Login.as_view(), name = 'login'),
+    path('logout/', Logout.as_view(), name = 'logout'),
+    path('refresh-token/', UserToken.as_view(), name = 'refresh_token'),
     path('users/', include('apps.users.api.urls')),
     path('activities/', include('apps.activities.api.routers'))
 ]

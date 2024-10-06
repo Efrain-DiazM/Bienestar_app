@@ -5,9 +5,10 @@ from rest_framework.response import Response
 
 
 from apps.base.api import GeneralListApiView
+from apps.users.authentication_mixins import Authentication
 from apps.activities.api.serializers.activity_serializers import ActivitySerializer
 
-class ActivityViewSet(viewsets.ModelViewSet):
+class ActivityViewSet(Authentication,viewsets.ModelViewSet):
     serializer_class = ActivitySerializer
 
     def get_queryset(self, pk=None):
