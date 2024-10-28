@@ -29,10 +29,12 @@ class Login(ObtainAuthToken):
             if user.is_active:
                 token, created = Token.objects.get_or_create(user = user)
                 user_serializer = UserTokenSerializer(user)
+                print(user.role)
                 if created:
                     return Response({
                         'token': token.key,
                         'user': user_serializer.data,
+                        'role': user.role,
                         'message': 'inicio de sesion exitoso'
                     }, status = status.HTTP_201_CREATED)
                 else:
@@ -47,6 +49,7 @@ class Login(ObtainAuthToken):
                     return Response({
                         'token': token.key,
                         'user': user_serializer.data,
+                        'role': user.role,
                         'message': 'inicio de sesion exitoso'
                     }, status = status.HTTP_201_CREATED)
                 # token.delete()
@@ -67,12 +70,12 @@ class Logout(APIView):
             token = Token.objects.filter(key = token).first()
             if token:
                 user = token.user
-                all_sessions = Session.objects.filter(expire_date__gte = datetime.now())
-                if all_sessions.exists():
-                    for session in all_sessions:
-                        session_data = session.get_decoded()
-                        if user.id == int(session_data.get('_auth_user_id')):
-                            session.delete()
+                # all_sessions = Session.objects.filter(expire_date__gte = datetime.now())
+                # if all_sessions.exists():
+                #     for session in all_sessions:
+                #         session_data = session.get_decoded()
+                #         if user.id == int(session_data.get('_auth_user_id')):
+                #             session.delete()
                 token.delete()
                 session_message = 'Sesiones de usuario eliminadas.'
                 token_message = 'Token eliminado.'

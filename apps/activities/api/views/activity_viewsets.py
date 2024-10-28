@@ -2,14 +2,27 @@ from  rest_framework import generics
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
 
 from apps.base.api import GeneralListApiView
 from apps.users.authentication_mixins import Authentication
+
+from apps.users.permissions import IsAdmin, IsCollaborator, IsStudent
 from apps.activities.api.serializers.activity_serializers import ActivitySerializer
 
-class ActivityViewSet(Authentication,viewsets.ModelViewSet):
+class ActivityViewSet(viewsets.ModelViewSet):
+
     serializer_class = ActivitySerializer
+    print(serializer_class)
+
+    # def get_permissions(self):
+    #     # Define permisos según la acción (action)
+    #     if self.action in ['list']:
+    #         permission_classes = [IsAuthenticated]  # Solo autenticados pueden listar
+    #     else:
+    #         permission_classes = [IsAuthenticated, IsAdmin]  # Solo admin para otras acciones
+    #     return [permission() for permission in permission_classes]
 
     def get_queryset(self, pk=None):
         if pk is None:

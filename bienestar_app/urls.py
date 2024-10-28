@@ -48,5 +48,6 @@ urlpatterns = [
     path('logout/', Logout.as_view(), name = 'logout'),
     path('refresh-token/', UserToken.as_view(), name = 'refresh_token'),
     path('users/', include('apps.users.api.urls')),
-    path('activities/', include('apps.activities.api.routers'))
+    path('activities/', include('apps.activities.api.routers')),
+    path('dimension/', include('apps.activities.api.urls'))
 ]

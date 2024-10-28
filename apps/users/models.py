@@ -49,7 +49,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField('Nombres', max_length=255, blank=True, null=True)
     last_name = models.CharField('Apellidos', max_length=255, blank=True, null=True)
     type_document = models.CharField('Tipo de documento', max_length=2, choices=TYPODOC, default='CC')
-    identification = models.CharField('Documento', max_length=20, unique=True)
+    identification = models.CharField('Documento', max_length=20, blank=True, null=True, unique=True)
     phone_number = models.CharField('Celular', max_length=15, blank=True, null=True)
     gender = models.CharField('Género', max_length=1, choices=GENDERS)
     image = models.ImageField('Imagen de perfil', upload_to='perfil/', max_length=255, null=True, blank=True)
@@ -67,7 +67,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['email', 'name', 'last_name', 'role']
 
     def __str__(self):
-        return f'{self.name} {self.last_name}'
+        return f'{self.name} {self.last_name} {self.role}'
 
 
 class Estudiante(User):
@@ -77,6 +77,9 @@ class Estudiante(User):
     class Meta:
         verbose_name = 'Estudiante'
         verbose_name_plural = 'Estudiantes'
+
+    def create(self, validated_data):
+        print("Datos recibidos desde el frontend:", validated_data)
 
 
 class UsuarioBienestar(User):
