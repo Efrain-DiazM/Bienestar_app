@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.users.models import User, Estudiante, UsuarioBienestar
+from apps.users.models import User, Estudiante, UsuarioBienestar, AcademicProgram
 
 class UserTokenSerializer(serializers.ModelSerializer):
     class Meta:
@@ -54,10 +54,20 @@ class EstudianteSerializer(UserSerializer):
     email = serializers.EmailField()
     class Meta(UserSerializer.Meta):
         model = Estudiante
-        fields = UserSerializer.Meta.fields + ['semester', 'accumulated_hours']
+        fields = UserSerializer.Meta.fields + ['semester', 'academic_program', 'accumulated_hours']
 
 class UsuarioBienestarSerializer(UserSerializer):
     email = serializers.EmailField()
     class Meta(UserSerializer.Meta):
         model = UsuarioBienestar
         fields = UserSerializer.Meta.fields + ['dimension']
+
+class EditUsuarioBienestarSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UsuarioBienestar
+        fields = ['id', 'username', 'email', 'name', 'last_name', 'identification', 'phone_number', 'is_active']
+
+class AcademicProgramSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AcademicProgram
+        fields = ['id', 'name', 'code']

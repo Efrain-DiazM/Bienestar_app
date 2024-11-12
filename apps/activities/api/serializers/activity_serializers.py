@@ -10,12 +10,13 @@ class ActivitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Activity
-        exclude = ('state','created_date','modified_date','deleted_date',)
+        exclude = ('created_date','modified_date','deleted_date',)
 
     # def to representation
     def to_representation(self, instance):
         return {
             'id': instance.id,
+            'state': instance.state,
             'name': instance.name,
             'description': instance.description,
             'dimension': instance.dimension.name,

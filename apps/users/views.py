@@ -8,15 +8,17 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 
+from apps.users.authentication_mixins import Authentication
 from apps.users.api.serializers import UserTokenSerializer
 
-class UserToken(APIView):
+class UserToken(Authentication, APIView):
 
     def get(self, request, *args, **kwargs):
-        username = request.GET.get('username')
+        print('Hola desde get UserToken')
         try:
-            user_token = Token.objects.get(user = UserTokenSerializer().Meta.model.objects.filter(username = username).first())
-            return Response({'token': user_token.key}, status = status.HTTP_200_OK)
+            user_token, _ = Token.objects.get_or_create(user = self.user)
+            user = UserTokenSerializer(self.user)
+            return Response({'token': user_token.key, 'user': user.data}, status = status.HTTP_200_OK)
         except:
             return Response({'error': 'Credenciales enviadas incorrectas'}, status = status.HTTP_400_BAD_REQUEST)
 
@@ -70,12 +72,12 @@ class Logout(APIView):
             token = Token.objects.filter(key = token).first()
             if token:
                 user = token.user
-                # all_sessions = Session.objects.filter(expire_date__gte = datetime.now())
-                # if all_sessions.exists():
-                #     for session in all_sessions:
-                #         session_data = session.get_decoded()
-                #         if user.id == int(session_data.get('_auth_user_id')):
-                #             session.delete()
+                all_sessions = Session.objects.filter(expire_date__gte = datetime.now())
+                if all_sessions.exists():
+                    for session in all_sessions:
+                        session_data = session.get_decoded()
+                        if user.id == int(session_data.get('_auth_user_id')):
+                            session.delete()
                 token.delete()
                 session_message = 'Sesiones de usuario eliminadas.'
                 token_message = 'Token eliminado.'

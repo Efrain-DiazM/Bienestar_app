@@ -68,10 +68,22 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return f'{self.name} {self.last_name} {self.role}'
+    
+class AcademicProgram(models.Model):
+    name = models.CharField('Nombre', max_length=255, blank=False, null=False)
+    code = models.CharField('Código', max_length=10, unique=True)
+
+    class Meta:
+        verbose_name = 'Programa Académico'
+        verbose_name_plural = 'Programas Académicos'
+
+    def __str__(self):
+        return self.name
 
 
 class Estudiante(User):
     semester = models.IntegerField('Semestre')
+    academic_program = models.ForeignKey(AcademicProgram, on_delete=models.PROTECT)
     accumulated_hours = models.DecimalField('Horas Acumuladas', max_digits=5, decimal_places=2, default=0)
 
     class Meta:

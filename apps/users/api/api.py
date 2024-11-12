@@ -5,8 +5,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from ..permissions import IsAdmin, IsCollaborator
-from apps.users.models import User
-from apps.users.api.serializers import UserSerializer, EstudianteSerializer, UsuarioBienestarSerializer
+from apps.users.models import User, AcademicProgram, Estudiante, UsuarioBienestar
+from apps.users.api.serializers import UserSerializer, EstudianteSerializer, UsuarioBienestarSerializer, AcademicProgramSerializer, EditUsuarioBienestarSerializer
 
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
@@ -103,9 +103,16 @@ def user_api_view(request):
     #         return Response({'message': 'Usuario creado correctamente, Revisa tu correo para activar la cuenta.'}, status=status.HTTP_201_CREATED)
     #     return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST'])
+@api_view(['GET', 'POST'])
 # @permission_classes([IsAuthenticated, IsAdmin])
 def create_student_api_view(request):
+    if request.method == 'GET':
+        # Queryset
+        users = Estudiante.objects.all()
+        # Serializer
+        users_serializer = EstudianteSerializer(users, many=True)
+        return Response(users_serializer.data, status=status.HTTP_200_OK)
+
     if request.method == 'POST':
         estudiante_serializer = EstudianteSerializer(data=request.data)
 
@@ -123,10 +130,18 @@ def create_student_api_view(request):
 
         return Response(estudiante_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
 
-@api_view(['POST'])
+@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated, IsAdmin])
 def create_collaborator_api_view(request):
+    if request.method == 'GET':
+        # Queryset
+        users = UsuarioBienestar.objects.all()
+        # Serializer
+        users_serializer = UsuarioBienestarSerializer(users, many=True)
+
+        return Response(users_serializer.data, status=status.HTTP_200_OK)
     if request.method == 'POST':
+        print(request.data)
         bienestar_serializer = UsuarioBienestarSerializer(data=request.data)
 
         if bienestar_serializer.is_valid():
@@ -152,7 +167,14 @@ def user_detail_api_view(request, pk=None):
             return Response(user_serializer.data, status=status.HTTP_200_OK)
         
         elif request.method == 'PUT':
-            user_serializer = UserSerializer(user, data=request.data)
+            if user.role == 'Estudiante':
+                user_serializer = EstudianteSerializer(user, data=request.data)
+            elif user.role == 'Usuario_Bienestar':
+                print('Usuario Bienestar')
+                print(request.data)
+                user_serializer = EditUsuarioBienestarSerializer(instance=user, data=request.data)
+            else:
+                user_serializer = UserSerializer(user, data=request.data)
             if user_serializer.is_valid():
                 user_serializer.save()
                 return Response(user_serializer.data, status=status.HTTP_200_OK)
@@ -163,3 +185,9 @@ def user_detail_api_view(request, pk=None):
             return Response({'message': 'Usuario eliminado correctamente'}, status=status.HTTP_200_OK)
 
     return Response({'message': 'No se ha encontrado un usuario con estos datos'}, status=status.HTTP_400_BAD_REQUEST) 
+
+@api_view(['GET'])
+def academic_programs_api_view(request):
+    academic_programs = AcademicProgram.objects.all()
+    academic_programs_serializer = AcademicProgramSerializer(academic_programs, many=True)
+    return Response(academic_programs_serializer.data, status=status.HTTP_200_OK)
