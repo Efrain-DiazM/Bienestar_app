@@ -18,11 +18,12 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 
 from rest_framework import permissions
+from rest_framework_simplejwt.views import TokenRefreshView
 
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
-from apps.users.views import Login, Logout, UserToken
+from apps.users.views import LoginAPIView, LogoutAPIView
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -44,9 +45,11 @@ urlpatterns = [
 
     path('admin/', admin.site.urls),
     # Include the urls from the users app
-    path('', Login.as_view(), name = 'login'),
-    path('logout/', Logout.as_view(), name = 'logout'),
-    path('refresh-token/', UserToken.as_view(), name = 'refresh_token'),
+    path('', LoginAPIView.as_view(), name = 'login'),
+    # path('logout/', Logout.as_view(), name = 'logout'),
+    path('logout/', LogoutAPIView.as_view(), name = 'logout'),
+    # path('refresh-token/', UserToken.as_view(), name = 'refresh_token'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('users/', include('apps.users.api.urls')),
     path('activities/', include('apps.activities.api.routers')),
     path('dimension/', include('apps.activities.api.urls'))

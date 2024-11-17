@@ -1,15 +1,20 @@
 from rest_framework import serializers
-from apps.users.models import User, Estudiante, UsuarioBienestar, AcademicProgram
+from apps.users.models import User, Estudiante, UsuarioBienestar, AcademicProgram, Gender, DocumentType
 
-class UserTokenSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('username', 'email', 'name', 'last_name')
+from django.contrib.auth.tokens import  PasswordResetTokenGenerator
+from django.utils.encoding import smart_str, force_str, smart_bytes, DjangoUnicodeDecodeError
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from rest_framework.exceptions import AuthenticationFailed
+
+# class UserTokenSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = ('username', 'email', 'name', 'last_name')
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'name', 'last_name', 'identification', 'gender', 'phone_number', 'password', 'role', 'image', 'is_active', 'is_staff']
+        fields = ['id', 'username', 'email', 'name', 'last_name', 'identification', 'gender', 'password', 'role', 'image', 'is_active', 'is_staff']
 
     def validate_email(self, value):
         print('validacion de correo')
@@ -65,9 +70,55 @@ class UsuarioBienestarSerializer(UserSerializer):
 class EditUsuarioBienestarSerializer(serializers.ModelSerializer):
     class Meta:
         model = UsuarioBienestar
-        fields = ['id', 'username', 'email', 'name', 'last_name', 'identification', 'phone_number', 'is_active']
+        fields = ['id', 'username', 'email', 'name', 'last_name', 'identification', 'is_active']
 
 class AcademicProgramSerializer(serializers.ModelSerializer):
     class Meta:
         model = AcademicProgram
         fields = ['id', 'name', 'code']
+
+class GenderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Gender
+        fields = ['id', 'code', 'name']
+
+class DocumentTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DocumentType
+        fields = ['id', 'code', 'name']
+
+class EmailVerificationSerializer(serializers.ModelSerializer):
+    token = serializers.CharField(max_length=555)
+    class Meta:
+        model = User
+        fields = ['token']
+
+class ResetPasswordEmailRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField(min_length=2)
+
+    class Meta:
+        fields = ['email']
+
+class SetNewPasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(min_length=8, max_length=16, write_only=True)
+    token = serializers.CharField(min_length=1, write_only=True)
+    uidb64 = serializers.CharField(min_length=1, write_only=True)
+    
+    class Meta:
+        fields = ['password', 'token', 'uidb64']
+
+    def validate(self, attrs):
+        try:
+            password = attrs.get('password')
+            token = attrs.get('token')
+            uidb64 = attrs.get('uidb64')
+            user_id = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(id=user_id)
+            if not PasswordResetTokenGenerator().check_token(user, token):
+                raise AuthenticationFailed('El link de restablecimiento es invalido', 401)
+            user.set_password(password)
+            user.save()
+            return user
+        except Exception as e:
+            raise AuthenticationFailed('El link de restablecimiento es invalido', 401)        
+        return super().validate(attrs)

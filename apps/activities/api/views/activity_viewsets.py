@@ -22,7 +22,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
         if self.action in ['list']:
             permission_classes = [IsAuthenticated]  # Solo autenticados pueden listar
         else:
-            permission_classes = [IsAuthenticated, IsAdmin]  # Solo admin para otras acciones
+            permission_classes = [IsAuthenticated, IsAdmin, IsCollaborator]  # Solo admin para otras acciones
         return [permission() for permission in permission_classes]
 
     def get_queryset(self, pk=None):
