@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from apps.activities.models import Activity
+import datetime
+from apps.activities.models import Activity, Dimension, ProgramDimension, SubprogramDimension
+from apps.users.models import UsuarioBienestar
 from apps.activities.api.serializers.general_serializers import DimensionSerializer, ProgramDimensionSerializer, SubprogramDimensionSerializer
 
 class ActivitySerializer(serializers.ModelSerializer):
@@ -28,3 +30,70 @@ class ActivitySerializer(serializers.ModelSerializer):
             'end_hour': instance.end_hour,
             'count_hours': instance.count_hours,
         }
+    
+    name = serializers.CharField(
+        error_messages={
+            'required': 'El titulo es obligatorio.',
+            'blank': 'El nombre no puede estar vacío.'
+        }
+    )
+    description = serializers.CharField(
+        error_messages={
+            'required': 'La descripción es obligatoria.',
+            'blank': 'La descripción no puede estar vacía.'
+        }
+    )
+    date = serializers.DateField(
+        error_messages={
+            'required': 'La fecha es obligatoria.',
+            'invalid': 'La fecha no tiene un formato válido.'
+        }
+    )
+    start_hour = serializers.TimeField(
+        error_messages={
+            'required': 'La hora de inicio es obligatoria.',
+            'invalid': 'La hora de inicio no tiene un formato válido.'
+        }
+    )
+    end_hour = serializers.TimeField(
+        error_messages={
+            'required': 'La hora de fin es obligatoria.',
+            'invalid': 'La hora de fin no tiene un formato válido.'
+        }
+    )
+    count_hours = serializers.IntegerField(
+        error_messages={
+            'required': 'La cantidad de horas es obligatoria.',
+            'invalid': 'La cantidad de horas debe ser un número entero.'
+        }
+    )
+    dimension = serializers.PrimaryKeyRelatedField(
+        queryset=Dimension.objects.all(),
+        error_messages={
+            'required': 'La dimensión es obligatoria.',
+            'does_not_exist': 'La dimensión especificada no existe.'
+        }
+    )
+    
+    def validate(self, data):
+        required_fields = [
+            'name', 'description', 'date', 'start_hour', 
+            'end_hour', 'count_hours', 'dimension', 
+            'program_dimension', 'subprogram_dimension', 'responsible'
+        ]
+        missing_fields = [field for field in required_fields if field not in data]
+
+        if missing_fields:
+            errors = {field: ['Este campo es obligatorio.'] for field in missing_fields}
+            raise serializers.ValidationError(errors)
+
+        # Validaciones cruzadas adicionales
+        start_hour = data.get('start_hour')
+        end_hour = data.get('end_hour')
+        if start_hour and end_hour and end_hour <= start_hour:
+            raise serializers.ValidationError({
+                'start_hour': 'La hora de inicio debe ser menor que la hora de fin.',
+                'end_hour': 'La hora de fin debe ser mayor que la hora de inicio.'
+            })
+        
+        return data

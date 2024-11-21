@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from ..permissions import IsAdmin, IsCollaborator
 from apps.users.models import User, AcademicProgram, Estudiante, UsuarioBienestar, Gender, DocumentType
-from apps.users.api.serializers import UserSerializer, EstudianteSerializer, UsuarioBienestarSerializer, AcademicProgramSerializer, EditUsuarioBienestarSerializer, GenderSerializer, DocumentTypeSerializer, EmailVerificationSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer
+from apps.users.api.serializers import UserSerializer, EstudianteSerializer, UsuarioBienestarSerializer, AcademicProgramSerializer, EditUsuarioBienestarSerializer, GenderSerializer, DocumentTypeSerializer, EmailVerificationSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, ListUsuarioBienestarSerializer
 
 
 from django.contrib.auth.tokens import default_token_generator
@@ -184,7 +184,7 @@ def create_collaborator_api_view(request):
         # Queryset
         users = UsuarioBienestar.objects.all()
         # Serializer
-        users_serializer = UsuarioBienestarSerializer(users, many=True)
+        users_serializer = ListUsuarioBienestarSerializer(users, many=True)
 
         return Response(users_serializer.data, status=status.HTTP_200_OK)
     if request.method == 'POST':

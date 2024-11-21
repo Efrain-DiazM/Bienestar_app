@@ -22,7 +22,8 @@ class ActivityViewSet(viewsets.ModelViewSet):
         if self.action in ['list']:
             permission_classes = [IsAuthenticated]  # Solo autenticados pueden listar
         else:
-            permission_classes = [IsAuthenticated, IsAdmin, IsCollaborator]  # Solo admin para otras acciones
+            # permission_classes = [IsAuthenticated, IsAdmin, IsCollaborator]  # Solo admin para otras acciones
+            permission_classes = [IsAuthenticated]  # Solo admin para otras acciones
         return [permission() for permission in permission_classes]
 
     def get_queryset(self, pk=None):
@@ -47,6 +48,8 @@ class ActivityViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             serializer.save()
             return Response({'message': 'Actividad creada correctamente'}, status=status.HTTP_201_CREATED)
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def update(self, request, pk=None):

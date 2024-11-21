@@ -16,8 +16,10 @@ class LoginSerializer(serializers.ModelSerializer):
         username = attrs.get('username', '')
         password = attrs.get('password', '')
 
+        usuario = User.objects.filter(username=username).first()
+        full_name = f"{usuario.name} {usuario.last_name}"
+
         user = auth.authenticate(username=username, password=password)
-        print(user)
         if not user:
             raise AuthenticationFailed('Credenciales incorrectas, intenta nuevamente')
         if not user.is_active:
@@ -26,8 +28,8 @@ class LoginSerializer(serializers.ModelSerializer):
             raise AuthenticationFailed('La cuenta no esta verificada')
         return {
             # 'email': user.email,
-            'username': username,
-            'user': user,
+            'username': full_name,
+            'user': usuario,
             'role': user.role,
             'tokens': user.tokens()
         }
