@@ -1,9 +1,10 @@
 from django.urls import path
-from apps.users.api.api import user_api_view, user_detail_api_view, create_student_api_view, create_collaborator_api_view, academic_programs_api_view, genders_api_view, document_types_api_view, VerifyEmail, PasswordTokenCheckAPI, RequestPasswordResetEmail, SetNewPasswordAPIView
+from apps.users.api.api import user_api_view, user_detail_api_view, create_student_api_view, create_collaborator_api_view, academic_programs_api_view, genders_api_view, document_types_api_view, VerifyEmail, PasswordTokenCheckAPI, RequestPasswordResetEmail, SetNewPasswordAPIView, user_detailStudent_api_view
 
 urlpatterns = [
     path('user/', user_api_view, name='user_api'),
     path('create-student/', create_student_api_view, name='create_student'),
+    path('user-student/<int:pk>/', user_detailStudent_api_view, name='user_detailStudent_api_view'),
     path('email-verify/', VerifyEmail.as_view(), name='email-verify'),
     path('request-reset-email/', RequestPasswordResetEmail.as_view(), name='request-reset-email'),
     path('password-reset/<uidb64>/<token>/', PasswordTokenCheckAPI.as_view(), name='password-reset-confirm'),

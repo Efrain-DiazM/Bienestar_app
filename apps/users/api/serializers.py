@@ -129,10 +129,23 @@ class UserSerializer(serializers.ModelSerializer):
         if 'password' in validated_data:
             instance.set_password(validated_data['password'])
         return super().update(instance, validated_data)
-
+class AcademicProgramSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AcademicProgram
+        fields = ['id', 'name', 'code']
+class DocumentTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DocumentType
+        fields = ['id', 'code', 'name']
+class StudentAcoumulatedHoursSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Estudiante
+        fields = ['accumulated_hours']
 class EstudianteSerializer(UserSerializer):
     email = serializers.EmailField()
     semester = serializers.IntegerField()
+    academic_program = AcademicProgramSerializer()
+    type_document = DocumentTypeSerializer()
 
     class Meta(UserSerializer.Meta):
         model = Estudiante
@@ -162,27 +175,19 @@ class UsuarioBienestarSerializer(UserSerializer):
 class ListUsuarioBienestarSerializer(serializers.ModelSerializer):
     class Meta:
         model = UsuarioBienestar
-        fields = ['id', 'username', 'email', 'name', 'last_name', 'gender', 'type_document', 'identification', 'dimension', 'is_active']
+        fields = ['id', 'username', 'email', 'name', 'last_name', 'gender', 'type_document', 'identification', 'dimension', 'is_active', 'last_login']
 
 class EditUsuarioBienestarSerializer(serializers.ModelSerializer):
     class Meta:
         model = UsuarioBienestar
         fields = ['id', 'username', 'email', 'name', 'last_name', 'identification', 'gender', 'type_document', 'is_active']
 
-class AcademicProgramSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AcademicProgram
-        fields = ['id', 'name', 'code']
 
 class GenderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Gender
         fields = ['id', 'code', 'name']
 
-class DocumentTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = DocumentType
-        fields = ['id', 'code', 'name']
 
 class EmailVerificationSerializer(serializers.ModelSerializer):
     token = serializers.CharField(max_length=555)

@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from ..permissions import IsAdmin, IsCollaborator
 from apps.users.models import User, AcademicProgram, Estudiante, UsuarioBienestar, Gender, DocumentType
-from apps.users.api.serializers import UserSerializer, EstudianteSerializer, UsuarioBienestarSerializer, AcademicProgramSerializer, EditUsuarioBienestarSerializer, GenderSerializer, DocumentTypeSerializer, EmailVerificationSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, ListUsuarioBienestarSerializer
+from apps.users.api.serializers import UserSerializer, EstudianteSerializer, UsuarioBienestarSerializer, AcademicProgramSerializer, EditUsuarioBienestarSerializer, GenderSerializer, DocumentTypeSerializer, EmailVerificationSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, ListUsuarioBienestarSerializer, StudentAcoumulatedHoursSerializer
 
 
 from django.contrib.auth.tokens import default_token_generator
@@ -33,6 +33,7 @@ from drf_yasg import openapi
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import smart_str, force_str, smart_bytes, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from rest_framework.permissions import AllowAny
 
 
 # def send_activation_email(user, request):
@@ -122,6 +123,7 @@ def user_api_view(request):
 
 @api_view(['GET', 'POST'])
 # @permission_classes([IsAuthenticated, IsAdmin])
+@permission_classes([AllowAny])
 def create_student_api_view(request):
     if request.method == 'GET':
         # Queryset
@@ -156,8 +158,26 @@ def create_student_api_view(request):
                 'message': 'Estudiante creado correctamente. Revisa tu correo para activar la cuenta.'
             }, status=status.HTTP_201_CREATED)
 
-        return Response(estudiante_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+        return Response(estudiante_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['GET'])
+def user_detailStudent_api_view(request, pk=None):
+    # Queryset
+    user = User.objects.filter(id=pk).first()
+    print(user)
+
+    if user:
+
+        if request.method == 'GET':
+            # Serializer
+            user_serializer = StudentAcoumulatedHoursSerializer(user)
+            print(user_serializer.data)
+            # return Response(user_serializer.data, status=status.HTTP_200_OK)
+            accumulated_hours = Estudiante.objects.get(id=pk).accumulated_hours
+            print(accumulated_hours)
+            return Response({'accumulated_hours': accumulated_hours}, status=status.HTTP_200_OK)
+
+@permission_classes([AllowAny])
 class VerifyEmail(views.APIView):
     serializer_class = EmailVerificationSerializer
     token_param_config = openapi.Parameter('token', in_=openapi.IN_QUERY, description='Description', type=openapi.TYPE_STRING)
@@ -169,6 +189,7 @@ class VerifyEmail(views.APIView):
             user = User.objects.get(id=payload['user_id'])
             if not user.is_verified:
                 user.is_verified = True
+                user.is_active = True
                 user.save()
             return Response({'email': 'Successfully activated'}, status=status.HTTP_200_OK)
         except jwt.ExpiredSignatureError as identifier:
@@ -193,6 +214,9 @@ def create_collaborator_api_view(request):
 
         if bienestar_serializer.is_valid():
             bienestar = bienestar_serializer.save()
+            bienestar.is_verified = True
+            bienestar.is_active = True
+            bienestar.save()
 
             # Si no requiere activación por correo
             return Response({
@@ -234,23 +258,27 @@ def user_detail_api_view(request, pk=None):
     return Response({'message': 'No se ha encontrado un usuario con estos datos'}, status=status.HTTP_400_BAD_REQUEST) 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def academic_programs_api_view(request):
     academic_programs = AcademicProgram.objects.all()
     academic_programs_serializer = AcademicProgramSerializer(academic_programs, many=True)
     return Response(academic_programs_serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def genders_api_view(request):
     genders = Gender.objects.all()
     genders_serializer = GenderSerializer(genders, many=True)
     return Response(genders_serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def document_types_api_view(request):
     document_types = DocumentType.objects.all()
     document_types_serializer = DocumentTypeSerializer(document_types, many=True)
     return Response(document_types_serializer.data, status=status.HTTP_200_OK)
 
+@permission_classes([AllowAny])
 class RequestPasswordResetEmail(generics.GenericAPIView):
     serializer_class = ResetPasswordEmailRequestSerializer
     def post(self, request):
@@ -273,6 +301,7 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
             Util.send_email(data)
         return Response({'success': 'hemos enviado un enlace para restablecer tu contraseña'}, status=status.HTTP_200_OK)
 
+@permission_classes([AllowAny])
 class PasswordTokenCheckAPI(generics.GenericAPIView):
     def get(self, request, uidb64, token):
         try:
@@ -293,6 +322,7 @@ class PasswordTokenCheckAPI(generics.GenericAPIView):
         except User.DoesNotExist as identifier:
             return Response({'error': 'Este usuario no existe'}, status=status.HTTP_400_BAD_REQUEST)
 
+@permission_classes([AllowAny])
 class SetNewPasswordAPIView(generics.GenericAPIView):
     serializer_class = SetNewPasswordSerializer
 

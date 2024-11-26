@@ -17,14 +17,14 @@ class ActivityViewSet(viewsets.ModelViewSet):
     serializer_class = ActivitySerializer
     print(serializer_class)
 
-    def get_permissions(self):
+    # def get_permissions(self):
         # Define permisos según la acción (action)
-        if self.action in ['list']:
-            permission_classes = [IsAuthenticated]  # Solo autenticados pueden listar
-        else:
-            # permission_classes = [IsAuthenticated, IsAdmin, IsCollaborator]  # Solo admin para otras acciones
-            permission_classes = [IsAuthenticated]  # Solo admin para otras acciones
-        return [permission() for permission in permission_classes]
+        # if self.action in ['list']:
+            # permission_classes = [IsAuthenticated]  # Solo autenticados pueden listar
+        # else:
+            # permission_classes = [IsAuthenticated, IsAdmin]  # Solo admin para otras acciones
+            # permission_classes = [IsAuthenticated]  # Solo admin para otras acciones
+        # return [permission() for permission in permission_classes]
 
     def get_queryset(self, pk=None):
         if pk is None:
@@ -37,14 +37,15 @@ class ActivityViewSet(viewsets.ModelViewSet):
     
     def create(self, request):
         serializer = self.serializer_class(data=request.data)
-        start_hour = datetime.strptime(request.data['start_hour'], '%H:%M')
-        end_hour = datetime.strptime(request.data['end_hour'], '%H:%M')
-        # calcular la resta de las horas que de resultado en entero aproximado hacia arriba
-        duration = (end_hour - start_hour).total_seconds() / 3600
-        if duration - int(duration) >= 0.5:
-            request.data['count_hours'] = int(duration) + 1
-        else:
-            request.data['count_hours'] = int(duration)
+        request.data['count_hours'] = 0
+        # start_hour = datetime.strptime(request.data['start_hour'], '%H:%M')
+        # end_hour = datetime.strptime(request.data['end_hour'], '%H:%M')
+        # # calcular la resta de las horas que de resultado en entero aproximado hacia arriba
+        # duration = (end_hour - start_hour).total_seconds() / 3600
+        # if duration - int(duration) >= 0.5:
+        #     request.data['count_hours'] = int(duration) + 1
+        # else:
+        #     request.data['count_hours'] = int(duration)
         if serializer.is_valid():
             serializer.save()
             return Response({'message': 'Actividad creada correctamente'}, status=status.HTTP_201_CREATED)

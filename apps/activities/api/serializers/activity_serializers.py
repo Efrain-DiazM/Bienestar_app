@@ -5,16 +5,10 @@ from apps.users.models import UsuarioBienestar
 from apps.activities.api.serializers.general_serializers import DimensionSerializer, ProgramDimensionSerializer, SubprogramDimensionSerializer
 
 class ActivitySerializer(serializers.ModelSerializer):
-    # dimension = serializers.StringRelatedField()
-    # program_dimension = serializers.StringRelatedField()
-    # subprogram_dimension = serializers.StringRelatedField()
-    # responsible = serializers.StringRelatedField()
-
     class Meta:
         model = Activity
         exclude = ('created_date','modified_date','deleted_date',)
 
-    # def to representation
     def to_representation(self, instance):
         return {
             'id': instance.id,
@@ -29,6 +23,7 @@ class ActivitySerializer(serializers.ModelSerializer):
             'start_hour': instance.start_hour,
             'end_hour': instance.end_hour,
             'count_hours': instance.count_hours,
+            'qr_code_identifier': str(instance.qr_code_identifier),
         }
     
     name = serializers.CharField(
@@ -87,6 +82,12 @@ class ActivitySerializer(serializers.ModelSerializer):
             errors = {field: ['Este campo es obligatorio.'] for field in missing_fields}
             raise serializers.ValidationError(errors)
 
+        date = data.get('date')
+        if date and date < datetime.date.today():
+            raise serializers.ValidationError({
+                'date': 'La fecha no puede ser anterior a la fecha actual.'
+            })
+
         # Validaciones cruzadas adicionales
         start_hour = data.get('start_hour')
         end_hour = data.get('end_hour')
@@ -95,5 +96,14 @@ class ActivitySerializer(serializers.ModelSerializer):
                 'start_hour': 'La hora de inicio debe ser menor que la hora de fin.',
                 'end_hour': 'La hora de fin debe ser mayor que la hora de inicio.'
             })
+
+        # Calcular la duración y ajustar count_hours
+        start_hour_dt = datetime.datetime.strptime(str(start_hour), '%H:%M:%S')
+        end_hour_dt = datetime.datetime.strptime(str(end_hour), '%H:%M:%S')
+        duration = (end_hour_dt - start_hour_dt).total_seconds() / 3600
+        if duration - int(duration) >= 0.5:
+            data['count_hours'] = int(duration) + 1
+        else:
+            data['count_hours'] = int(duration)
         
         return data

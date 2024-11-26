@@ -15,6 +15,7 @@ from apps.users.authentication_mixins import Authentication
 from rest_framework import generics
 from .serielizers import LoginSerializer, LogoutSerializer
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 
 # class UserToken(Authentication, APIView):
 
@@ -93,8 +94,10 @@ from rest_framework.permissions import IsAuthenticated
         
 class LoginAPIView(generics.GenericAPIView):
     serializer_class = LoginSerializer
+    permission_classes = [AllowAny]
 
     def post(self, request):
+        print(request.data)
         serializer = self.serializer_class(data = request.data)
         serializer.is_valid(raise_exception = True)
         print(serializer.data)

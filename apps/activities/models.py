@@ -1,8 +1,9 @@
 from django.db import models
 from simple_history.models import HistoricalRecords
+import uuid
 
 from apps.base.models import BaseModel
-from apps.users.models import UsuarioBienestar
+from apps.users.models import UsuarioBienestar, Estudiante
 
 class Dimension(BaseModel):
     name = models.CharField('Nombre Dimension', max_length=255)
@@ -77,6 +78,7 @@ class Activity(BaseModel):
     start_hour = models.TimeField('Hora de inicio')
     end_hour = models.TimeField('Hora de fin')
     count_hours = models.IntegerField('Cantidad de horas')
+    qr_code_identifier = models.UUIDField('Identificador QR', default=uuid.uuid4, editable=False, unique=True)
     historical = HistoricalRecords()
 
     @property
@@ -94,3 +96,17 @@ class Activity(BaseModel):
     def __str__(self):
         return f'Actividad {self.name} pertenece al subprograma {self.subprogram_dimension}'
 
+
+class AttandenceActivity(BaseModel):
+    activity = models.ForeignKey(Activity, on_delete=models.PROTECT)
+    student = models.ForeignKey('users.Estudiante', on_delete=models.PROTECT)
+    # qr_code_identifier = models.UUIDField('Identificador QR', default=uuid4, editable=False, unique=True)
+    attendance_date = models.DateTimeField('Fecha de Asistencia', null=True, blank=True)
+    historical = HistoricalRecords()
+    class Meta:
+        verbose_name = 'Registro de Actividad'
+        verbose_name_plural = 'Registros de Actividades'
+        unique_together = ('activity', 'student')
+
+    def __str__(self):
+        return f"{self.student.username} - {self.activity.name}"
