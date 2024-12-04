@@ -28,11 +28,12 @@ class ActivityViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self, pk=None):
         if pk is None:
-            return self.get_serializer().Meta.model.objects.filter(state=True)
+            return self.get_serializer().Meta.model.objects
         return self.get_serializer().Meta.model.objects.filter(id=pk, state=True).first()
     
     def list(self, request):
         activity_serializer = self.get_serializer(self.get_queryset(), many=True)
+        print(activity_serializer.data)
         return Response(activity_serializer.data, status=status.HTTP_200_OK)
     
     def create(self, request):

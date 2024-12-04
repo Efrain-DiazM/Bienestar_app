@@ -206,8 +206,8 @@ def create_collaborator_api_view(request):
         users = UsuarioBienestar.objects.all()
         # Serializer
         users_serializer = ListUsuarioBienestarSerializer(users, many=True)
-
         return Response(users_serializer.data, status=status.HTTP_200_OK)
+    
     if request.method == 'POST':
         print(request.data)
         bienestar_serializer = UsuarioBienestarSerializer(data=request.data)
@@ -257,26 +257,52 @@ def user_detail_api_view(request, pk=None):
 
     return Response({'message': 'No se ha encontrado un usuario con estos datos'}, status=status.HTTP_400_BAD_REQUEST) 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def academic_programs_api_view(request):
-    academic_programs = AcademicProgram.objects.all()
-    academic_programs_serializer = AcademicProgramSerializer(academic_programs, many=True)
-    return Response(academic_programs_serializer.data, status=status.HTTP_200_OK)
+    if request.method == 'POST':
+        academic_program_serializer = AcademicProgramSerializer(data=request.data)
+        if academic_program_serializer.is_valid():
+            academic_program_serializer.save()
+            return Response(academic_program_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(academic_program_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    if request.method == 'GET':
+        academic_programs = AcademicProgram.objects.all()
+        academic_programs_serializer = AcademicProgramSerializer(academic_programs, many=True)
+        return Response(academic_programs_serializer.data, status=status.HTTP_200_OK)
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def genders_api_view(request):
-    genders = Gender.objects.all()
-    genders_serializer = GenderSerializer(genders, many=True)
-    return Response(genders_serializer.data, status=status.HTTP_200_OK)
 
-@api_view(['GET'])
+    if request.method == 'POST':
+        genders_serializer = GenderSerializer(data=request.data)
+        if genders_serializer.is_valid():
+            genders_serializer.save()
+            return Response(genders_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(genders_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    if request.method == 'GET':
+        genders = Gender.objects.all()
+        genders_serializer = GenderSerializer(genders, many=True)
+        return Response(genders_serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def document_types_api_view(request):
-    document_types = DocumentType.objects.all()
-    document_types_serializer = DocumentTypeSerializer(document_types, many=True)
-    return Response(document_types_serializer.data, status=status.HTTP_200_OK)
+
+    if request.method == 'POST':
+        document_type_serializer = DocumentTypeSerializer(data=request.data)
+        if document_type_serializer.is_valid():
+            document_type_serializer.save()
+            return Response(document_type_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(document_type_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    if request.method == 'GET':
+        document_types = DocumentType.objects.all()
+        document_types_serializer = DocumentTypeSerializer(document_types, many=True)
+        return Response(document_types_serializer.data, status=status.HTTP_200_OK)
 
 @permission_classes([AllowAny])
 class RequestPasswordResetEmail(generics.GenericAPIView):

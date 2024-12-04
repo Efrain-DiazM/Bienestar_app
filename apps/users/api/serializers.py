@@ -141,11 +141,16 @@ class StudentAcoumulatedHoursSerializer(serializers.ModelSerializer):
     class Meta:
         model = Estudiante
         fields = ['accumulated_hours']
+class GenderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Gender
+        fields = ['id', 'code', 'name']
 class EstudianteSerializer(UserSerializer):
     email = serializers.EmailField()
     semester = serializers.IntegerField()
     academic_program = AcademicProgramSerializer()
     type_document = DocumentTypeSerializer()
+    gender = GenderSerializer()
 
     class Meta(UserSerializer.Meta):
         model = Estudiante
@@ -182,11 +187,6 @@ class EditUsuarioBienestarSerializer(serializers.ModelSerializer):
         model = UsuarioBienestar
         fields = ['id', 'username', 'email', 'name', 'last_name', 'identification', 'gender', 'type_document', 'is_active']
 
-
-class GenderSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Gender
-        fields = ['id', 'code', 'name']
 
 
 class EmailVerificationSerializer(serializers.ModelSerializer):
