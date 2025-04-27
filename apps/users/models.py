@@ -4,6 +4,8 @@ from simple_history.models import HistoricalRecords
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
+
+
 class Gender(models.Model):
     code = models.CharField('Código', max_length=1, unique=True)
     name = models.CharField('Nombre', max_length=50)
@@ -132,7 +134,8 @@ class Estudiante(User):
 
 
 class UsuarioBienestar(User):
-    dimension = models.CharField('Dimensión Académica', max_length=255)
+    # dimension = models.CharField('Dimensión Académica', max_length=255)
+    dimension = models.ForeignKey('activities.Dimension', on_delete=models.PROTECT)
 
     class Meta:
         verbose_name = 'Usuario Bienestar'

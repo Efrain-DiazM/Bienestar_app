@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from apps.users.models import User, Estudiante, UsuarioBienestar, AcademicProgram, Gender, DocumentType
+from apps.activities.api.serializers.general_serializers import DimensionSerializer
 
 from django.contrib.auth.tokens import  PasswordResetTokenGenerator
 from django.utils.encoding import smart_str, force_str, smart_bytes, DjangoUnicodeDecodeError
@@ -147,10 +148,10 @@ class GenderSerializer(serializers.ModelSerializer):
         fields = ['id', 'code', 'name']
 class EstudianteSerializer(UserSerializer):
     email = serializers.EmailField()
-    semester = serializers.IntegerField()
-    academic_program = AcademicProgramSerializer()
-    type_document = DocumentTypeSerializer()
-    gender = GenderSerializer()
+    # semester = serializers.IntegerField()
+    # academic_program = AcademicProgramSerializer()
+    # type_document = DocumentTypeSerializer()
+    # gender = GenderSerializer()
 
     class Meta(UserSerializer.Meta):
         model = Estudiante
@@ -178,6 +179,7 @@ class UsuarioBienestarSerializer(UserSerializer):
         fields = UserSerializer.Meta.fields + ['dimension']
 
 class ListUsuarioBienestarSerializer(serializers.ModelSerializer):
+    dimension = DimensionSerializer()
     class Meta:
         model = UsuarioBienestar
         fields = ['id', 'username', 'email', 'name', 'last_name', 'gender', 'type_document', 'identification', 'dimension', 'is_active', 'last_login']
@@ -185,9 +187,7 @@ class ListUsuarioBienestarSerializer(serializers.ModelSerializer):
 class EditUsuarioBienestarSerializer(serializers.ModelSerializer):
     class Meta:
         model = UsuarioBienestar
-        fields = ['id', 'username', 'email', 'name', 'last_name', 'identification', 'gender', 'type_document', 'is_active']
-
-
+        fields = ['id', 'username', 'email', 'name', 'last_name', 'identification', 'gender', 'type_document', 'dimension', 'is_active']
 
 class EmailVerificationSerializer(serializers.ModelSerializer):
     token = serializers.CharField(max_length=555)

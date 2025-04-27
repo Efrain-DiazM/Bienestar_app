@@ -10,7 +10,7 @@ from apps.base.api import GeneralListApiView
 from apps.users.authentication_mixins import Authentication
 
 from apps.users.permissions import IsAdmin, IsCollaborator, IsStudent
-from apps.activities.api.serializers.activity_serializers import ActivitySerializer
+from apps.activities.api.serializers.activity_serializers import ActivitySerializer, EditActivitySerializer
 
 class ActivityViewSet(viewsets.ModelViewSet):
 
@@ -33,11 +33,11 @@ class ActivityViewSet(viewsets.ModelViewSet):
     
     def list(self, request):
         activity_serializer = self.get_serializer(self.get_queryset(), many=True)
-        print(activity_serializer.data)
+        # print(activity_serializer.data)
         return Response(activity_serializer.data, status=status.HTTP_200_OK)
     
     def create(self, request):
-        serializer = self.serializer_class(data=request.data)
+        serializer = EditActivitySerializer(data=request.data)
         request.data['count_hours'] = 0
         # start_hour = datetime.strptime(request.data['start_hour'], '%H:%M')
         # end_hour = datetime.strptime(request.data['end_hour'], '%H:%M')
@@ -51,15 +51,15 @@ class ActivityViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response({'message': 'Actividad creada correctamente'}, status=status.HTTP_201_CREATED)
         # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        print(serializer.errors)
+        # print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def update(self, request, pk=None):
         if self.get_queryset(pk):
-            activity_serializer = self.serializer_class(self.get_queryset(pk), data=request.data)
-            print(request.data)
+            activity_serializer = EditActivitySerializer(self.get_queryset(pk), data=request.data)
+            # print(request.data)
             if activity_serializer.is_valid():
-                print('entro')
+                # print('entro')
                 activity_serializer.save()
                 return Response(activity_serializer.data, status=status.HTTP_200_OK)
             return Response(activity_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
