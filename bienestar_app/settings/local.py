@@ -39,7 +39,7 @@ DATABASES = {
         'HOST': config('DB_HOST', 'localhost'),  # Valor predeterminado: localhost
         'PORT': config('DB_PORT', '3306'),       # Valor predeterminado: 3306
         'OPTIONS': {
-             'ca': os.path.join(BASE_DIR, 'cert', 'BaltimoreCyberTrustRoot.crt.pem'),  # para Azure
+             'ssl': os.path.join(BASE_DIR, 'cert', 'BaltimoreCyberTrustRoot.crt.pem'),  # para Azure
          },
     }
 }
