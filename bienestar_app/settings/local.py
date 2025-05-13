@@ -38,6 +38,9 @@ DATABASES = {
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST', 'localhost'),  # Valor predeterminado: localhost
         'PORT': config('DB_PORT', '3306'),       # Valor predeterminado: 3306
+        'OPTIONS': {
+             'ssl': {'ca': '/cert/BaltimoreCyberTrustRoot.crt.pem'},  # para Azure
+         },
     }
 }
 
