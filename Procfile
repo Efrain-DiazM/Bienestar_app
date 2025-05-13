@@ -1,1 +1,1 @@
-web: gunicorn bienestar_app.wsgi:application
+web: gunicorn bienestar_app.wsgi
