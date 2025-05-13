@@ -30,20 +30,20 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 #         },
 #     }
 # }
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': config('DB_NAME'),
-#         'USER': config('DB_USER'),
-#         'PASSWORD': config('DB_PASSWORD'),
-#         'HOST': config('DB_HOST', 'localhost'),  # Valor predeterminado: localhost
-#         'PORT': config('DB_PORT', '3306'),       # Valor predeterminado: 3306
-#     }
-# }
-
 DATABASES = {
-    'default': dj_database_url.config(default=os.getenv("DATABASE_URL"))
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST', 'localhost'),  # Valor predeterminado: localhost
+        'PORT': config('DB_PORT', '3306'),       # Valor predeterminado: 3306
+    }
 }
+
+# DATABASES = {
+#     'default': dj_database_url.config(default=os.getenv("DATABASE_URL"))
+# }
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
