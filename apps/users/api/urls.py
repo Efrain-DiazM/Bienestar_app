@@ -1,8 +1,9 @@
 from django.urls import path
-from apps.users.api.api import user_api_view, user_detail_api_view, create_student_api_view, create_collaborator_api_view, academic_programs_api_view, genders_api_view, document_types_api_view, VerifyEmail, PasswordTokenCheckAPI, RequestPasswordResetEmail, SetNewPasswordAPIView, user_detailStudent_api_view
+from apps.users.api.api import change_password_api_view, user_api_view, user_detail_api_view, create_student_api_view, create_collaborator_api_view, academic_programs_api_view, genders_api_view, document_types_api_view, VerifyEmail, PasswordTokenCheckAPI, RequestPasswordResetEmail, SetNewPasswordAPIView, user_detailStudent_api_view, get_logged_in_user
 
 urlpatterns = [
     path('user/', user_api_view, name='user_api'),
+    path('api/user/', get_logged_in_user, name='get_logged_in_user'),
     path('create-student/', create_student_api_view, name='create_student'),
     path('user-student/<int:pk>/', user_detailStudent_api_view, name='user_detailStudent_api_view'),
     path('email-verify/', VerifyEmail.as_view(), name='email-verify'),
@@ -11,6 +12,8 @@ urlpatterns = [
     path('password-reset-complete/', SetNewPasswordAPIView.as_view(), name='password-reset-complete'),
     path('create-collaborator/', create_collaborator_api_view, name='create_collaborator'),
     path('user/<int:pk>/', user_detail_api_view, name='user_detail_api_view'),
+
+    path('change-password/', change_password_api_view, name='change_password'),
 
     # path('activate/<uidb64>/<token>/', activate_account, name='activate'),
     path('academic-programs/', academic_programs_api_view, name='academic_programs'),

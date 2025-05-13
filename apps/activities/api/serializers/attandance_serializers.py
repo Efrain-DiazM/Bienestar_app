@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.activities.models import AttandenceActivity, Activity
+from apps.activities.models import AttendanceActivity, Activity
 from apps.users.models import Estudiante
 from apps.users.api.serializers import EstudianteSerializer
 from rest_framework.exceptions import ValidationError
@@ -8,7 +8,7 @@ class AttendanceSerializer(serializers.ModelSerializer):
     qr_code_identifier = serializers.UUIDField(required=True)
 
     class Meta:
-        model = AttandenceActivity
+        model = AttendanceActivity
         fields = '__all__'
 
     def validate_qr_code_identifier(self, value):
@@ -26,7 +26,7 @@ class AttendanceSerializer(serializers.ModelSerializer):
         # Verificar si el estudiante ya está registrado en la actividad
         try:
             activity = Activity.objects.get(qr_code_identifier=qr_code_identifier)
-            attendance_entry = AttandenceActivity.objects.filter(activity=activity, student=student).first()
+            attendance_entry = AttendanceActivity.objects.filter(activity=activity, student=student).first()
 
             if attendance_entry and attendance_entry.attendance_date:
                 raise ValidationError("Ya has registrado asistencia para esta actividad")
@@ -39,5 +39,5 @@ class AttendanceSerializer(serializers.ModelSerializer):
 class AttandenceActivitySerializer(serializers.ModelSerializer):
     student = EstudianteSerializer()
     class Meta:
-        model = AttandenceActivity
+        model = AttendanceActivity
         fields = '__all__'

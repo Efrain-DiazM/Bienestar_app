@@ -88,8 +88,8 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Error, el email no puede estar vacio")
         if User.objects.filter(email=value).exists():
             raise serializers.ValidationError("Error, el correo ya existe")
-        if not value.endswith('@campusucc.edu.co') and not value.endswith('@ucc.edu.co'):
-            raise serializers.ValidationError("Error, el correo debe ser institucional @campuss.edu.coc")
+        if not value.endswith('@campusucc.edu.co'): #and not value.endswith('@ucc.edu.co')
+            raise serializers.ValidationError("Error, el correo debe ser institucional @campusucc.edu.co")
         # if self.validate_name(self.context['name']) in value:
         #     raise serializers.ValidationError("Error, el nombre no puede estar en el email")
         return value
@@ -224,3 +224,24 @@ class SetNewPasswordSerializer(serializers.Serializer):
         except Exception as e:
             raise AuthenticationFailed('El link de restablecimiento es invalido', 401)        
         return super().validate(attrs)
+    
+class SetNewPasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(write_only=True)
+
+    def validate_password(self, value):
+        print('validacion de contraseña')
+        if len(value) < 8:
+            raise serializers.ValidationError("La contraseña debe tener al menos 8 caracteres.")
+        if len(value) > 16:
+            raise serializers.ValidationError("La contraseña debe tener máximo 16 caracteres.")
+        if not any(char.isdigit() for char in value):
+            raise serializers.ValidationError("La contraseña debe incluir al menos un número.")
+        if not any(char.isalpha() for char in value):
+            raise serializers.ValidationError("La contraseña debe incluir al menos una letra.")
+        if not any(char.isupper() for char in value):
+            raise serializers.ValidationError("La contraseña debe incluir al menos una letra mayúscula.")
+        if not any(char.islower() for char in value):
+            raise serializers.ValidationError("La contraseña debe incluir al menos una letra minúscula.")
+        if not any(char in ['$', '#', '@', '&', '%', '!', '.', '+', '-', '*', '/'] for char in value):
+            raise serializers.ValidationError("La contraseña debe incluir al menos un carácter especial.")
+        return value

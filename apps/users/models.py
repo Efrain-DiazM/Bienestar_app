@@ -1,12 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
+from apps.base.models import BaseModel
 from simple_history.models import HistoricalRecords
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
 
-class Gender(models.Model):
+class Gender(BaseModel):
     code = models.CharField('Código', max_length=1, unique=True)
     name = models.CharField('Nombre', max_length=50)
 
@@ -17,7 +18,7 @@ class Gender(models.Model):
         verbose_name = 'Género'
         verbose_name_plural = 'Géneros'
 
-class DocumentType(models.Model):
+class DocumentType(BaseModel):
     code = models.CharField('Código', max_length=2, unique=True)
     name = models.CharField('Nombre', max_length=50)
 
@@ -73,7 +74,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=255, unique=True)
     email = models.EmailField('Correo Electrónico', max_length=255, unique=True)
     # ---------
-    is_verified = models.BooleanField('Verificado', default=False)
+    # is_verified = models.BooleanField('Verificado', default=False)
     # ---------
     name = models.CharField('Nombres', max_length=255, blank=True, null=True)
     last_name = models.CharField('Apellidos', max_length=255, blank=True, null=True)
@@ -108,7 +109,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             'access': str(refresh.access_token)
         }
     
-class AcademicProgram(models.Model):
+class AcademicProgram(BaseModel):
     name = models.CharField('Nombre', max_length=255, blank=False, null=False)
     code = models.CharField('Código', max_length=10, unique=True)
 
@@ -129,8 +130,8 @@ class Estudiante(User):
         verbose_name = 'Estudiante'
         verbose_name_plural = 'Estudiantes'
 
-    def create(self, validated_data):
-        print("Datos recibidos desde el frontend:", validated_data)
+    # def create(self, validated_data):
+    #     print("Datos recibidos desde el frontend:", validated_data)
 
 
 class UsuarioBienestar(User):

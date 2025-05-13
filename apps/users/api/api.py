@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth.hashers import check_password
 from ..permissions import IsAdmin, IsCollaborator
 from apps.users.models import User, AcademicProgram, Estudiante, UsuarioBienestar, Gender, DocumentType
 from apps.users.api.serializers import UserSerializer, EstudianteSerializer, UsuarioBienestarSerializer, AcademicProgramSerializer, EditUsuarioBienestarSerializer, GenderSerializer, DocumentTypeSerializer, EmailVerificationSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, ListUsuarioBienestarSerializer, StudentAcoumulatedHoursSerializer
@@ -356,3 +357,54 @@ class SetNewPasswordAPIView(generics.GenericAPIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response({'success': True, 'message': 'Contraseña restableciuda correctamente'}, status=status.HTTP_200_OK)
+    
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_logged_in_user(request):
+    """
+    Endpoint para obtener los datos del usuario autenticado.
+    """
+    user = request.user  # Obtiene el usuario autenticado
+    user_serializer = UserSerializer(user)  # Serializa los datos del usuario
+    return Response(user_serializer.data, status=200)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def change_password_api_view(request):
+    """
+    Endpoint para que un usuario autenticado cambie su contraseña.
+    """
+
+    user = request.user  # Usuario autenticado
+    data = request.data
+
+    print(data)
+
+
+    # Validar que se envíen todos los campos necesarios
+    current_password = data.get('current_password')
+    new_password = data.get('password')
+    confirm_password = data.get('confirm_password')
+
+    if not current_password or not new_password or not confirm_password:
+        return Response({'error': 'Todos los campos son obligatorios.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Verificar que la contraseña actual sea correcta
+    if not check_password(current_password, user.password):
+        return Response({'error': 'La contraseña actual es incorrecta.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Verificar que la nueva contraseña y la confirmación coincidan
+    if new_password != confirm_password:
+        return Response({'error': 'La nueva contraseña y la confirmación no coinciden.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    serializer = SetNewPasswordSerializer(data=data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Cambiar la contraseña
+    new_password = serializer.validated_data.get('password')
+    user.set_password(new_password)
+    user.save()
+
+    return Response({'message': 'La contraseña se ha cambiado correctamente.'}, status=status.HTTP_200_OK)

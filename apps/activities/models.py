@@ -94,10 +94,10 @@ class Activity(BaseModel):
         verbose_name_plural = 'Actividades'
 
     def __str__(self):
-        return f'Actividad {self.name} pertenece al subprograma {self.subprogram_dimension}'
+        return f'Actividad {self.name} pertenece {self.subprogram_dimension}'
 
 
-class AttandenceActivity(BaseModel):
+class AttendanceActivity(BaseModel):
     activity = models.ForeignKey(Activity, on_delete=models.PROTECT)
     student = models.ForeignKey('users.Estudiante', on_delete=models.PROTECT)
     # qr_code_identifier = models.UUIDField('Identificador QR', default=uuid4, editable=False, unique=True)
