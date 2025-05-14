@@ -136,9 +136,7 @@ USE_TZ = False
 
 AUTH_USER_MODEL = 'users.User'
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-]
+CORS_ALLOWED_ORIGINS = config("CORS_ALLOWED")
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
