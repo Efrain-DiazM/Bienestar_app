@@ -8,7 +8,7 @@ from django.contrib.auth.hashers import check_password
 from ..permissions import IsAdmin, IsCollaborator
 from apps.users.models import User, AcademicProgram, Estudiante, UsuarioBienestar, Gender, DocumentType
 from apps.users.api.serializers import UserSerializer, EstudianteSerializer, UsuarioBienestarSerializer, AcademicProgramSerializer, EditUsuarioBienestarSerializer, GenderSerializer, DocumentTypeSerializer, EmailVerificationSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, ListUsuarioBienestarSerializer, StudentAcoumulatedHoursSerializer
-
+from django.http import HttpResponseRedirect
 
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
@@ -184,7 +184,8 @@ class VerifyEmail(views.APIView):
     token_param_config = openapi.Parameter('token', in_=openapi.IN_QUERY, description='Description', type=openapi.TYPE_STRING)
     @swagger_auto_schema(manual_parameters=[token_param_config])
     def get(self, request):
-        token=request.GET.get('token')
+        token = request.GET.get('token')
+        frontend_url = 'http://localhost:5173'  # Ejemplo: "http://localhost:5173"
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
             user = User.objects.get(id=payload['user_id'])
@@ -192,12 +193,19 @@ class VerifyEmail(views.APIView):
                 user.is_verified = True
                 user.is_active = True
                 user.save()
-            return Response({'email': 'Successfully activated'}, status=status.HTTP_200_OK)
-        except jwt.ExpiredSignatureError as identifier:
-            return Response({'error': 'Activation Expired'}, status=status.HTTP_400_BAD_REQUEST)
-        except jwt.exceptions.DecodeError as identifier:
-            return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
-
+            # Redirige al frontend con éxito
+            redirect_url = f"{frontend_url}/auth/verify-email?status=success"
+            return HttpResponseRedirect(redirect_url)
+        except jwt.ExpiredSignatureError:
+            # Redirige al frontend con error de expiración
+            redirect_url = f"{frontend_url}/auth/verify-email?status=expired"
+            return HttpResponseRedirect(redirect_url)
+        except jwt.exceptions.DecodeError:
+            # Redirige al frontend con error de token inválido
+            redirect_url = f"{frontend_url}/auth/verify-email?status=invalid"
+            return HttpResponseRedirect(redirect_url)
+        
+        
 @api_view(['GET', 'POST'])
 # @permission_classes([IsAuthenticated, IsAdmin, IsCollaborator])
 def create_collaborator_api_view(request):
