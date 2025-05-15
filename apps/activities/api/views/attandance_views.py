@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 import uuid
 from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework import status
 from datetime import datetime
 
 from apps.activities.models import Activity, AttendanceActivity
@@ -39,6 +40,14 @@ class QRCodeApiView(APIView):
         activity.qr_code_identifier = uuid.uuid4()
         activity.save()
         return Response({"qr_code_identifier": activity.qr_code_identifier}, status=200)
+
+class ActivityByQRAPIView(APIView):
+    def get(self, request, qr_code_identifier):
+        try:
+            activity = Activity.objects.get(qr_code_identifier=qr_code_identifier)
+            return Response({'activity_id': activity.id}, status=status.HTTP_200_OK)
+        except Activity.DoesNotExist:
+            return Response({'error': 'Actividad no encontrada'}, status=status.HTTP_404_NOT_FOUND)
     
 from datetime import datetime, timedelta
 from django.utils.timezone import now
