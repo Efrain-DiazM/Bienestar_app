@@ -38,16 +38,9 @@ DATABASES = {
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST', 'localhost'),  # Valor predeterminado: localhost
         'PORT': config('DB_PORT', '3306'),       # Valor predeterminado: 3306
-        # 'OPTIONS': {
-        #      'ssl': os.path.join(BASE_DIR, 'cert', 'BaltimoreCyberTrustRoot.crt.pem'),  # para Azure
-        #  },
-
         'OPTIONS': {
-            'ssl': {
-                'ca': os.path.join(BASE_DIR, 'cert', 'BaltimoreCyberTrustRoot.crt.pem'), # archivo del certificado de autoridad
-
-            }
-        }
+             'ssl': os.path.join(BASE_DIR, 'cert', 'BaltimoreCyberTrustRoot.crt.pem'),  # para Azure
+         },
     }
 }
 
