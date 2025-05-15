@@ -14,6 +14,8 @@ class QRCodeApiView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, activity_id):
+        print(activity_id)
+        # Aquí puedes verificar si el usuario está autenticado
         # user = request.user
         # if user.is_authenticated:
         #     return Response({"message": "User is authenticated"})
@@ -23,6 +25,8 @@ class QRCodeApiView(APIView):
             activity = Activity.objects.get(id=activity_id)
         except Activity.DoesNotExist:
             return Response({"message": "Activity not found"}, status=404)
+
+        print('activity', activity)
         
          # Validar que el QR solo se genere en la fecha y horario de la actividad
         current_time = now()
@@ -38,11 +42,13 @@ class QRCodeApiView(APIView):
         
         # Generar el QR si está dentro del horario permitido
         activity.qr_code_identifier = uuid.uuid4()
+        print('qr_code_identifier', activity.qr_code_identifier)
         activity.save()
         return Response({"qr_code_identifier": activity.qr_code_identifier}, status=200)
 
 class ActivityByQRAPIView(APIView):
     def get(self, request, qr_code_identifier):
+        print(qr_code_identifier)
         try:
             activity = Activity.objects.get(qr_code_identifier=qr_code_identifier)
             return Response({'activity_id': activity.id}, status=status.HTTP_200_OK)
