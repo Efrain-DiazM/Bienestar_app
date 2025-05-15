@@ -1,6 +1,6 @@
 from django.urls import path
 from apps.activities.api.views.general_views import DimensionListAPIView, ProgramDimensionListAPIView, SubprogramDimensionListAPIView
-from .views.attandance_views import QRCodeApiView, RegisterAttandenceApiView, AttandenceListAPIView, AttandenceListByActivityAPIView
+from .views.attandance_views import QRCodeApiView, ActivityByQRAPIView, RegisterAttandenceApiView, AttandenceListAPIView, AttandenceListByActivityAPIView
 from .views.activity_viewsets import FilteredActivitiesAPIView
 
 urlpatterns = [
