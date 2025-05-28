@@ -10,6 +10,11 @@ class AttendanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = AttendanceActivity
         fields = '__all__'
+        extra_kwargs = {
+            'non_field_errors': {'error_messages': {
+                'unique': "El estudiante ya ha registrado asistencia para esta actividad."
+            }}
+        }
 
     def validate_qr_code_identifier(self, value):
         try:
