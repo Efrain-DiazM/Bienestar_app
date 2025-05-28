@@ -5,6 +5,7 @@ import uuid
 from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework import status
 from datetime import datetime
+from django.db import IntegrityError
 
 from apps.activities.models import Activity, AttendanceActivity
 from apps.users.models import Estudiante
@@ -62,7 +63,6 @@ class RegisterAttandenceApiView(APIView):
     # permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        print(request.data)
         serializer = AttendanceSerializer(data=request.data, context={"request": request})
 
         if serializer.is_valid():
@@ -73,23 +73,25 @@ class RegisterAttandenceApiView(APIView):
             try:
                 student = Estudiante.objects.get(id=student_id)
             except Estudiante.DoesNotExist:
-                return Response({"error": "Estudiante no encontrado."}, status=404)
+                return Response({"error": "Estudiante no encontrado."}, status=status.HTTP_404_NOT_FOUND)
 
             # Buscar la actividad
             try:
                 activity = Activity.objects.get(qr_code_identifier=qr_code_identifier)
             except Activity.DoesNotExist:
-                return Response({"error": "Actividad no encontrada."}, status=404)
+                return Response({"error": "Actividad no encontrada."}, status=status.HTTP_404_NOT_FOUND)
+
             # Validar que la actividad no haya caducado
             if activity.date < datetime.now().date():
-                return Response({"error": "La actividad ha caducado."}, status=400)
+                return Response({"error": "La actividad ha caducado."}, status=status.HTTP_400_BAD_REQUEST)
+
             # Validar que el estudiante no haya registrado asistencia previamente
             if AttendanceActivity.objects.filter(activity=activity, student=student).exists():
-                return Response({"error": "El estudiante ya ha registrado asistencia para esta actividad."}, status=400)
-            
-            # validar que el qr pertenezca a la actividad
+                return Response({"error": "El estudiante ya ha registrado asistencia para esta actividad."}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Validar que el qr pertenezca a la actividad
             if str(activity.qr_code_identifier) != qr_code_identifier:
-                return Response({"error": "El código QR no corresponde a la actividad."}, status=400)
+                return Response({"error": "El código QR no corresponde a la actividad."}, status=status.HTTP_400_BAD_REQUEST)
 
             # Validar que la asistencia esté dentro de la fecha y horario permitido
             current_time = now()
@@ -100,25 +102,26 @@ class RegisterAttandenceApiView(APIView):
             if not (activity_start_time <= current_time <= activity_end_time):
                 return Response(
                     {"error": "La asistencia solo puede registrarse en la fecha y horario de la actividad o hasta 20 minutos después de que termine."},
-                    status=400
+                    status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # Verificar si el estudiante ya asistió a la actividad
-            # attandence_activity = AttendanceActivity.objects.filter(activity=activity, student=student).first()
-            # if attandence_activity:
-            #     return Response({"error": "El estudiante ya registró asistencia para esta actividad."}, status=400)
-
             # Registrar la asistencia
-            student.accumulated_hours += activity.count_hours
-            student.save()
+            try:
+                student.accumulated_hours += activity.count_hours
+                student.save()
 
-            attandence_activity = AttendanceActivity(activity=activity, student=student)
-            attandence_activity.attendance_date = current_time
-            attandence_activity.save()
+                attandence_activity = AttendanceActivity(activity=activity, student=student)
+                attandence_activity.attendance_date = current_time
+                attandence_activity.save()
+            except IntegrityError:
+                # Captura cualquier error de unicidad por si acaso
+                return Response({"error": "El estudiante ya ha registrado asistencia para esta actividad."}, status=status.HTTP_400_BAD_REQUEST)
 
-            return Response({"message": "Asistencia registrada exitosamente"}, status=200)
+            return Response({"message": "Asistencia registrada exitosamente"}, status=status.HTTP_200_OK)
 
-        return Response(serializer.errors, status=400)
+        # Si el serializer no es válido, muestra un mensaje claro
+        error_msg = serializer.errors.get('non_field_errors', serializer.errors)
+        return Response({"error": error_msg}, status=status.HTTP_400_BAD_REQUEST)
 
 class AttandenceListAPIView(APIView):
     permission_classes = (IsAuthenticated,)

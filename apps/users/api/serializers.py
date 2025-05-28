@@ -149,7 +149,7 @@ class GenderSerializer(serializers.ModelSerializer):
 class EstudianteSerializer(UserSerializer):
     email = serializers.EmailField()
     # semester = serializers.IntegerField()
-    # academic_program = AcademicProgramSerializer()
+    academic_program = AcademicProgramSerializer(read_only=True)
     # type_document = DocumentTypeSerializer()
     # gender = GenderSerializer()
 
